@@ -1,0 +1,595 @@
+<!doctype html>
+<html lang="hi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#e23744">
+<meta name="mobile-web-app-capable" content="yes">
+<title>Gaon Food</title>
+<style>
+:root{--red:#e23744;--ink:#1f1f1f;--mut:#6f6f6f;--bg:#f4f4f6;--card:#fff;--grn:#1a9c4b;--line:#ececec}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0}
+body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--ink);padding-bottom:150px;font-size:15px}
+header{position:sticky;top:0;z-index:20;background:var(--red);color:#fff;padding:12px 14px;display:flex;align-items:center;gap:10px}
+header h1{margin:0;font-size:18px;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hb{background:rgba(255,255,255,.2);color:#fff;border:0;border-radius:10px;padding:8px 12px;font-size:16px;text-decoration:none}
+.wrap{max-width:640px;margin:0 auto;padding:12px}
+.card{background:var(--card);border-radius:14px;padding:13px;margin-bottom:10px;box-shadow:0 1px 3px rgba(0,0,0,.07)}
+.row{display:flex;align-items:center;gap:10px}
+.gap{gap:8px;flex-wrap:wrap}
+.grow{flex:1;min-width:0}
+.muted{color:var(--mut)}
+.small{font-size:13px}
+.center{text-align:center}
+.emoji{font-size:28px;width:46px;height:46px;display:grid;place-items:center;background:#fff3f4;border-radius:12px;flex:none}
+.stall{cursor:pointer}
+.badge{font-size:12px;padding:3px 9px;border-radius:20px;font-weight:600;white-space:nowrap}
+.badge.on{background:#e3f6ea;color:var(--grn)}
+.badge.off{background:#fde7e7;color:#c62828}
+.pill{font-size:12px;padding:3px 9px;border-radius:20px;font-weight:600;background:#eee;white-space:nowrap}
+.pill.wait{background:#fff4d6;color:#8a6100}
+.pill.act{background:#ffe1e4;color:var(--red)}
+.pill.ok{background:#e3f6ea;color:var(--grn)}
+.pill.done{background:#e8eaf6;color:#3949ab}
+.pill.bad{background:#eee;color:#777}
+.btn{display:block;width:100%;border:0;border-radius:12px;background:var(--red);color:#fff;font-size:16px;font-weight:600;padding:13px;margin:10px 0;cursor:pointer}
+.btn.ghost{background:#fff;color:var(--ink);border:1px solid #ddd}
+.btn.green{background:var(--grn)}
+.btn.ghost.red{color:#c62828}
+.btn.sm{display:inline-block;width:auto;padding:9px 13px;font-size:14px;margin:4px 0}
+.qty{display:flex;align-items:center;border:1px solid var(--red);border-radius:10px;overflow:hidden;flex:none}
+.qty button{background:#fff;border:0;color:var(--red);font-size:20px;width:34px;height:34px;font-weight:700}
+.qty span{min-width:28px;text-align:center;font-weight:700}
+.add{background:#fff;color:var(--red);border:1px solid var(--red);border-radius:10px;padding:8px 18px;font-weight:700;font-size:14px;flex:none}
+.item.dim{opacity:.5}
+.line{padding:7px 0;border-bottom:1px solid var(--line)}
+.amt{min-width:56px;text-align:right}
+.warn{background:#fff4d6;color:#8a6100;padding:10px 12px;border-radius:12px;margin-bottom:10px}
+.err{background:#fde7e7;color:#b71c1c;padding:10px 12px;border-radius:12px;margin-bottom:10px;font-size:13px}
+.msg{margin-top:8px;font-size:14px;color:#333}
+.cust{background:#fafafa;border-radius:10px;padding:9px;margin:8px 0;font-size:14px;line-height:1.5}
+.cust a{color:#1565c0}
+.chg{width:100px;margin:0}
+.cartbar{position:fixed;left:12px;right:12px;bottom:72px;background:var(--grn);color:#fff;border-radius:14px;padding:14px 16px;display:flex;justify-content:space-between;font-weight:600;z-index:30;max-width:616px;margin:0 auto;cursor:pointer}
+nav{position:fixed;left:0;right:0;bottom:0;background:#fff;border-top:1px solid var(--line);display:flex;z-index:30;padding-bottom:env(safe-area-inset-bottom)}
+nav button{flex:1;background:none;border:0;padding:8px 0 10px;font-size:11px;color:var(--mut);position:relative}
+nav button span{display:block;font-size:20px}
+nav button.on{color:var(--red);font-weight:700}
+.dot{position:absolute;top:2px;left:55%;background:var(--red);color:#fff;border-radius:10px;font-style:normal;font-size:11px;padding:1px 6px}
+.tabs{display:flex;gap:8px;margin-bottom:10px}
+.tabs button{flex:1;padding:11px;border-radius:12px;border:1px solid #ddd;background:#fff;font-size:15px;font-weight:600}
+.tabs button.on{background:var(--red);color:#fff;border-color:var(--red)}
+h3,h4{margin:6px 0}
+#sheet{display:none;position:fixed;inset:0;z-index:50}
+#sheet.open{display:block}
+.sheetbg{position:absolute;inset:0;background:rgba(0,0,0,.45)}
+.sheetbox{position:absolute;left:0;right:0;bottom:0;background:#fff;border-radius:18px 18px 0 0;padding:16px;max-height:88vh;overflow:auto;max-width:640px;margin:0 auto}
+label{display:block;font-size:13px;color:var(--mut);margin-top:10px}
+input,textarea,select{display:block;width:100%;margin-top:4px;padding:11px;font-size:16px;border:1px solid #d6d6d6;border-radius:10px;font-family:inherit}
+#toast{position:fixed;left:50%;bottom:130px;transform:translateX(-50%) translateY(20px);background:#222;color:#fff;padding:10px 16px;border-radius:20px;opacity:0;transition:.25s;z-index:60;max-width:88%;text-align:center;pointer-events:none}
+#toast.show{opacity:1;transform:translateX(-50%)}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div id="sheet"></div>
+<div id="toast"></div>
+
+<script type="module">
+import { initializeApp, getApps } from "https://www.gstatic.com/firebasejs/13.1.0/firebase-app.js";
+import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/13.1.0/firebase-auth.js";
+import { getFirestore, collection, doc, addDoc, updateDoc, deleteDoc, onSnapshot, query, where, orderBy, limit, serverTimestamp } from "https://www.gstatic.com/firebasejs/13.1.0/firebase-firestore.js";
+
+/* ====== SETTINGS (yahan badal sakte ho) ====== */
+const CONFIG = {
+  apiKey: "AIzaSyCrmsjz377xoWeyooc_4mmUvr7uqtUBZ5w",
+  authDomain: "gaon-food.firebaseapp.com",
+  projectId: "gaon-food",
+  storageBucket: "gaon-food.firebasestorage.app",
+  messagingSenderId: "269693183640",
+  appId: "1:269693183640:web:b582612873daac21c852ed"
+};
+const APP_NAME = "Gaon Food";
+const ADMIN_EMAIL = "skdgv1@gmail.com";   // admin ka email (firestore rules mein bhi yahi hona chahiye)
+const ADMIN_PHONE = "9274811905";                 // apna 10 digit mobile number likho (customer ke call button ke liye)
+const MIN_CHARGE = 30;                    // minimum delivery charge
+/* ============================================ */
+
+const app = initializeApp(CONFIG);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const rupee = n => '₹' + Number(n || 0);
+const load = (k, d) => { try { const v = JSON.parse(localStorage.getItem('gf_' + k)); return v ?? d; } catch { return d; } };
+const save = (k, v) => { try { localStorage.setItem('gf_' + k, JSON.stringify(v)); } catch {} };
+const uid8 = () => Math.random().toString(36).slice(2, 9);
+const top = () => window.scrollTo(0, 0);
+const ts = o => (o.createdAt && o.createdAt.toMillis) ? o.createdAt.toMillis() : Date.now();
+const timeStr = o => { const t = o.createdAt && o.createdAt.toDate ? o.createdAt.toDate() : null; return t ? t.toLocaleString('en-IN', {day:'numeric', month:'short', hour:'2-digit', minute:'2-digit'}) : 'abhi'; };
+
+const STATUS = {
+  placed:   {label:'Charge ka wait', cls:'wait', msg:'Delivery charge tay hone ka wait karo. Thodi der mein yahin dikh jayega.', short:''},
+  priced:   {label:'Confirm karo', cls:'act', msg:'Final total tay ho gaya. Confirm karoge toh order stall ko chala jayega.', short:'💰 Final total aa gaya, confirm karo'},
+  confirmed:{label:'Stall ko bheja', cls:'wait', msg:'Stall ke accept karne ka wait hai.', short:''},
+  preparing:{label:'Ban raha hai', cls:'ok', msg:'🍳 Aapka khana ban raha hai.', short:'🍳 Aapka khana ban raha hai'},
+  ready:    {label:'Tayyar', cls:'ok', msg:'Khana tayyar hai, delivery jaldi nikalegi.', short:'Khana tayyar hai'},
+  on_way:   {label:'Raaste mein', cls:'ok', msg:'🛵 Delivery nikal gayi hai. Phone paas rakho.', short:'🛵 Delivery nikal gayi'},
+  delivered:{label:'Pahunch gaya', cls:'done', msg:'Khana pahunch gaya. Shukriya! 🙏', short:'✅ Order pahunch gaya'},
+  cancelled:{label:'Cancel', cls:'bad', msg:'Ye order cancel ho gaya.', short:'Order cancel ho gaya'}
+};
+
+const S = {
+  view: 'home', tab: 'orders',
+  stalls: [], stallsLoaded: false, stallId: null, menuStallId: null,
+  cart: load('cart', {stallId: null, items: {}}),
+  myOrders: load('myOrders', []),
+  profile: load('profile', {}),
+  orderDocs: {}, panelOrders: [], draft: {},
+  user: null, authReady: false, role: 'customer', myStall: null,
+  err: '', pending: false, placing: false
+};
+
+/* ---------- sound + toast ---------- */
+let actx = null;
+function unlockAudio() { try { actx = actx || new (window.AudioContext || window.webkitAudioContext)(); if (actx.state === 'suspended') actx.resume(); } catch {} }
+document.addEventListener('pointerdown', unlockAudio);
+function beep() {
+  try {
+    if (actx) {
+      const t = actx.currentTime;
+      for (let i = 0; i < 3; i++) {
+        const o = actx.createOscillator(), g = actx.createGain();
+        o.frequency.value = 880; o.connect(g); g.connect(actx.destination);
+        g.gain.setValueAtTime(0.25, t + i * 0.35);
+        g.gain.exponentialRampToValueAtTime(0.001, t + i * 0.35 + 0.3);
+        o.start(t + i * 0.35); o.stop(t + i * 0.35 + 0.3);
+      }
+    }
+  } catch {}
+  try { if (navigator.vibrate) navigator.vibrate([300, 150, 300]); } catch {}
+}
+function toast(msg) {
+  const t = $('#toast'); t.textContent = msg; t.classList.add('show');
+  clearTimeout(toast.t); toast.t = setTimeout(() => t.classList.remove('show'), 2800);
+}
+function niceAuthErr(e) {
+  const m = {
+    'auth/invalid-credential': 'Email ya password galat hai', 'auth/wrong-password': 'Password galat hai',
+    'auth/user-not-found': 'Ye email registered nahi hai', 'auth/email-already-in-use': 'Ye email pehle se bana hua hai',
+    'auth/weak-password': 'Password kam se kam 6 akshar ka rakho', 'auth/invalid-email': 'Email sahi nahi hai',
+    'auth/too-many-requests': 'Bahut koshish ho gayi, thodi der baad try karo',
+    'auth/operation-not-allowed': 'Firebase mein Email/Password login on karo',
+    'auth/network-request-failed': 'Internet check karo'
+  };
+  return m[e && e.code] || (e && e.message) || 'Kuch gadbad hui';
+}
+
+/* ---------- sheet ---------- */
+function openSheet(html) { const s = $('#sheet'); s.innerHTML = '<div class="sheetbg" data-act="closeSheet"></div><div class="sheetbox">' + html + '</div>'; s.classList.add('open'); }
+function closeSheet() { const s = $('#sheet'); s.classList.remove('open'); s.innerHTML = ''; }
+
+/* ---------- helpers ---------- */
+const stallById = id => S.stalls.find(s => s.id === id);
+const curStall = () => stallById(S.stallId);
+const persistCart = () => save('cart', S.cart);
+const cartItems = () => Object.entries(S.cart.items).map(([id, v]) => ({id, ...v}));
+const cartQty = (sid, iid) => S.cart.stallId === sid ? ((S.cart.items[iid] || {}).qty || 0) : 0;
+const cartCount = () => cartItems().reduce((a, i) => a + i.qty, 0);
+const cartTotal = () => cartItems().reduce((a, i) => a + i.qty * i.price, 0);
+
+/* ---------- firebase listeners ---------- */
+onSnapshot(collection(db, 'stalls'), snap => {
+  S.stalls = snap.docs.map(d => ({id: d.id, ...d.data()})).sort((a, b) => String(a.name || '').localeCompare(String(b.name || '')));
+  S.stallsLoaded = true; S.err = '';
+  recomputeRole(); render();
+}, err => { S.err = 'Database se connect nahi ho paya: ' + err.message; S.stallsLoaded = true; render(); });
+
+onAuthStateChanged(auth, u => {
+  S.user = u; S.authReady = true;
+  recomputeRole();
+  if (u && S.view === 'login') S.view = 'panel';
+  if (!u && (S.view === 'panel' || S.view === 'menu')) S.view = 'home';
+  render();
+});
+
+function recomputeRole() {
+  const u = S.user; let role = 'customer', myStall = null;
+  if (u) {
+    if ((u.email || '').toLowerCase() === ADMIN_EMAIL.toLowerCase()) role = 'admin';
+    else { myStall = S.stalls.find(s => s.ownerUid === u.uid) || null; role = myStall ? 'owner' : 'noaccess'; }
+  }
+  const changed = role !== S.role || ((myStall && myStall.id) !== (S.myStall && S.myStall.id));
+  S.role = role; S.myStall = myStall;
+  if (changed) subscribePanelOrders();
+}
+
+let unsubPanel = null, firstPanel = true;
+function subscribePanelOrders() {
+  if (unsubPanel) { unsubPanel(); unsubPanel = null; }
+  S.panelOrders = []; firstPanel = true;
+  let q;
+  if (S.role === 'admin') q = query(collection(db, 'orders'), orderBy('createdAt', 'desc'), limit(150));
+  else if (S.role === 'owner') q = query(collection(db, 'orders'), where('ownerUid', '==', S.user.uid));
+  else return;
+  unsubPanel = onSnapshot(q, snap => {
+    S.panelOrders = snap.docs.map(d => ({id: d.id, ...d.data()}));
+    snap.docChanges().forEach(ch => {
+      if (firstPanel) return;
+      const o = ch.doc.data();
+      const hit = (S.role === 'admin' && ((ch.type === 'added' && o.status === 'placed') || (ch.type === 'modified' && (o.status === 'ready' || o.status === 'confirmed'))))
+               || (S.role === 'owner' && ch.type === 'modified' && o.status === 'confirmed');
+      if (hit) { beep(); toast(S.role === 'admin' && o.status === 'placed' ? '🔔 Naya order aaya!' : '🔔 Order update: ' + (STATUS[o.status] || {}).label); }
+    });
+    firstPanel = false;
+    render();
+  }, err => { S.err = 'Orders load nahi hue: ' + err.message; render(); });
+}
+
+const unsubOrders = {};
+function subscribeMyOrders() {
+  S.myOrders.forEach(id => {
+    if (unsubOrders[id]) return;
+    unsubOrders[id] = onSnapshot(doc(db, 'orders', id), snap => {
+      if (snap.exists()) {
+        const prev = S.orderDocs[id], d = {id, ...snap.data()};
+        if (prev && prev.status !== d.status && STATUS[d.status] && STATUS[d.status].short) { beep(); toast(STATUS[d.status].short); }
+        S.orderDocs[id] = d;
+      } else delete S.orderDocs[id];
+      render();
+    }, () => {});
+  });
+}
+
+/* ---------- views ---------- */
+function header() {
+  const back = ['stall', 'cart', 'menu'].includes(S.view);
+  let title = '🍛 ' + esc(APP_NAME);
+  if (S.view === 'stall') title = esc((curStall() || {}).name || '');
+  else if (S.view === 'cart') title = 'Aapka Cart';
+  else if (S.view === 'orders') title = 'Meri Orders';
+  else if (S.view === 'login') title = 'Login';
+  else if (S.view === 'panel') title = S.role === 'admin' ? 'Admin Panel' : 'Meri Dukaan';
+  else if (S.view === 'menu') title = 'Menu';
+  const ph = String(ADMIN_PHONE).replace(/\D/g, '');
+  return '<header>' + (back ? '<button class="hb" data-act="back">←</button>' : '') + '<h1>' + title + '</h1>' + (ph ? '<a class="hb" href="tel:' + ph + '">📞</a>' : '') + '</header>';
+}
+
+function qtyCtl(sid, iid, q) {
+  const a = 'data-sid="' + esc(sid) + '" data-iid="' + esc(iid) + '"';
+  return q ? '<div class="qty"><button data-act="dec" ' + a + '>−</button><span>' + q + '</span><button data-act="inc" ' + a + '>+</button></div>'
+           : '<button class="add" data-act="inc" ' + a + '>ADD</button>';
+}
+
+function homeView() {
+  if (!S.stallsLoaded) return '<p class="muted center">Load ho raha hai…</p>';
+  const list = S.stalls.filter(s => !s.hidden);
+  if (!list.length) return '<div class="card center">Abhi koi stall nahi hai. Jaldi hi aayenge! 🙏</div>';
+  return list.map(s => '<div class="card stall" data-act="openStall" data-id="' + esc(s.id) + '"><div class="row"><div class="emoji">' + esc(s.emoji || '🍽️') + '</div><div class="grow"><b>' + esc(s.name) + '</b><div class="muted small">' + esc(s.timing || '') + '</div></div><span class="badge ' + (s.open !== false ? 'on' : 'off') + '">' + (s.open !== false ? 'Khula' : 'Band') + '</span></div></div>').join('');
+}
+
+function stallView() {
+  const s = curStall(); if (!s) return '<p class="muted">Stall nahi mila.</p>';
+  const closed = s.open === false, menu = s.menu || [];
+  let h = closed ? '<div class="warn">Ye stall abhi band hai. Menu dekh sakte ho, order nahi.</div>' : '';
+  if (!menu.length) return h + '<div class="card center muted">Menu abhi add nahi hua.</div>';
+  return h + menu.map(it => {
+    const avail = it.available !== false;
+    return '<div class="card item row ' + (avail ? '' : 'dim') + '"><div class="grow"><b>' + esc(it.name) + '</b><div class="muted">' + rupee(it.price) + (avail ? '' : ' · Khatam') + '</div></div>' + (avail && !closed ? qtyCtl(s.id, it.id, cartQty(s.id, it.id)) : '') + '</div>';
+  }).join('');
+}
+
+function cartView() {
+  const items = cartItems();
+  if (!items.length) return '<div class="card center muted">Cart khali hai.</div>';
+  const s = stallById(S.cart.stallId);
+  return '<div class="card"><b>' + esc(s ? s.name : '') + '</b>' +
+    items.map(i => '<div class="row line"><div class="grow">' + esc(i.name) + '<div class="muted small">' + rupee(i.price) + '</div></div>' + qtyCtl(S.cart.stallId, i.id, i.qty) + '<b class="amt">' + rupee(i.qty * i.price) + '</b></div>').join('') +
+    '<div class="row line"><span class="grow">Khane ka total</span><b>' + rupee(cartTotal()) + '</b></div>' +
+    '<div class="row line"><span class="grow">Delivery</span><b>' + rupee(MIN_CHARGE) + ' se shuru*</b></div></div>' +
+    '<p class="muted small">*Delivery charge doori ke hisaab se final hoga. Order bhejne ke baad aapko final total dikhega, aap confirm karoge tab order aage jayega.</p>' +
+    '<button class="btn" data-act="checkout">Order bhejo</button>';
+}
+
+function ordersView() {
+  if (!S.myOrders.length) return '<div class="card center muted">Abhi koi order nahi. Order karoge toh uska status yahin dikhega.</div>';
+  const list = S.myOrders.map(id => S.orderDocs[id]).filter(Boolean);
+  if (!list.length) return '<p class="muted center">Load ho raha hai…</p>';
+  return list.map(custCard).join('');
+}
+
+function custCard(o) {
+  const st = STATUS[o.status] || {};
+  const total = o.deliveryCharge != null ? o.subtotal + o.deliveryCharge : null;
+  let btns = '';
+  if (o.status === 'priced') btns = '<div class="row gap"><button class="btn sm green" data-act="custConfirm" data-id="' + o.id + '">✅ Confirm karo (' + rupee(total) + ')</button><button class="btn sm ghost" data-act="custCancel" data-id="' + o.id + '">Cancel</button></div>';
+  else if (o.status === 'placed') btns = '<button class="btn sm ghost" data-act="custCancel" data-id="' + o.id + '">Order cancel karo</button>';
+  return '<div class="card"><div class="row"><b class="grow">' + esc(o.stallName) + '</b><span class="pill ' + (st.cls || '') + '">' + esc(st.label || o.status) + '</span></div>' +
+    '<div class="muted small">' + timeStr(o) + '</div>' +
+    (o.items || []).map(i => '<div class="row small line"><span class="grow">' + i.qty + ' × ' + esc(i.name) + '</span><span>' + rupee(i.qty * i.price) + '</span></div>').join('') +
+    '<div class="row small line"><span class="grow">Delivery</span><span>' + (o.deliveryCharge != null ? rupee(o.deliveryCharge) : 'wait…') + '</span></div>' +
+    '<div class="row line"><b class="grow">Total</b><b>' + (total != null ? rupee(total) : rupee(o.subtotal) + ' + delivery') + '</b></div>' +
+    '<div class="msg">' + (st.msg || '') + '</div>' + btns + '</div>';
+}
+
+function loginView() {
+  return '<div class="card"><h3>Stall / Admin login</h3><label>Email<input id="l_email" type="email" autocomplete="username"></label><label>Password<input id="l_pass" type="password" autocomplete="current-password"></label><button class="btn" data-act="login">Login</button>' +
+    '<button class="btn ghost" data-act="adminSignup">Pehli baar: Admin account banao</button>' +
+    '<p class="muted small">Ye sirf stall malik aur admin ke liye hai. Customer ko login ki zarurat nahi.</p></div>';
+}
+
+function panelView() {
+  if (!S.user) return loginView();
+  if (!S.stallsLoaded) return '<p class="muted center">Load ho raha hai…</p>';
+  if (S.role === 'noaccess') return '<div class="card center">Is account se koi stall juda nahi hai. Admin se baat karo.<br><button class="btn ghost" data-act="logout">Logout</button></div>';
+  const tabs = S.role === 'admin' ? [['orders', '🧾 Orders'], ['stalls', '🏪 Stalls']] : [['orders', '🧾 Orders'], ['menu', '📋 Menu']];
+  if (!tabs.some(t => t[0] === S.tab)) S.tab = 'orders';
+  return '<div class="tabs">' + tabs.map(t => '<button class="' + (S.tab === t[0] ? 'on' : '') + '" data-act="tab" data-k="' + t[0] + '">' + t[1] + '</button>').join('') + '</div>' +
+    (S.tab === 'orders' ? panelOrders() : S.tab === 'stalls' ? adminStalls() : menuEditor(S.myStall.id)) +
+    '<button class="btn ghost" data-act="logout">Logout (' + esc(S.user.email) + ')</button>';
+}
+
+function panelOrders() {
+  const isAdmin = S.role === 'admin';
+  const visible = S.panelOrders.filter(o => isAdmin ? true : ['confirmed', 'preparing', 'ready', 'on_way', 'delivered'].includes(o.status));
+  const finished = o => o.status === 'delivered' || o.status === 'cancelled';
+  const active = visible.filter(o => !finished(o)).sort((a, b) => ts(a) - ts(b));
+  const done = visible.filter(finished).sort((a, b) => ts(b) - ts(a)).slice(0, 20);
+  let h = '';
+  if (isAdmin) {
+    const today = new Date().toDateString();
+    const d = S.panelOrders.filter(o => o.status === 'delivered' && new Date(ts(o)).toDateString() === today);
+    h += '<div class="card"><b>Aaj ka hisaab</b><div class="small muted">' + d.length + ' delivery · Delivery kamayi <b>' + rupee(d.reduce((a, o) => a + (o.deliveryCharge || 0), 0)) + '</b> · Khane ka total <b>' + rupee(d.reduce((a, o) => a + (o.subtotal || 0), 0)) + '</b></div></div>';
+  }
+  h += '<h4>Chal rahe orders (' + active.length + ')</h4>' + (active.map(panelCard).join('') || '<div class="card center muted">Abhi koi active order nahi.</div>');
+  if (done.length) h += '<h4>Purane orders</h4>' + done.map(panelCard).join('');
+  return h;
+}
+
+function panelCard(o) {
+  const isAdmin = S.role === 'admin', st = STATUS[o.status] || {};
+  const total = o.deliveryCharge != null ? o.subtotal + o.deliveryCharge : null;
+  const sb = (to, label, cls) => '<button class="btn sm ' + (cls || '') + '" data-act="setStatus" data-id="' + o.id + '" data-to="' + to + '">' + label + '</button>';
+  let label = st.label || o.status, actions = '';
+  if (isAdmin) {
+    if (o.status === 'placed') label = 'Naya — charge daalo';
+    if (o.status === 'placed' || o.status === 'priced') {
+      const dv = S.draft['chg_' + o.id] != null ? S.draft['chg_' + o.id] : (o.deliveryCharge != null ? o.deliveryCharge : MIN_CHARGE);
+      actions = '<div class="row gap"><input class="chg" type="number" inputmode="numeric" min="' + MIN_CHARGE + '" data-draft="chg_' + o.id + '" value="' + esc(dv) + '"><button class="btn sm" data-act="setCharge" data-id="' + o.id + '">' + (o.status === 'priced' ? 'Charge badlo' : 'Charge bhejo') + '</button></div>';
+    }
+    if (o.status === 'confirmed') actions = sb('preparing', 'Stall ne accept kiya ✅', 'green');
+    if (o.status === 'preparing') actions = sb('ready', 'Khana tayyar 🍽️', 'green');
+    if (o.status === 'ready') actions = sb('on_way', '🛵 Le liya, nikal raha hu');
+    if (o.status === 'on_way') actions = sb('delivered', '✅ Delivered (' + rupee(total) + ' le liye)', 'green');
+    if (!['delivered', 'cancelled'].includes(o.status)) actions += sb('cancelled', 'Cancel', 'ghost red');
+  } else {
+    if (o.status === 'confirmed') { label = 'Naya order!'; actions = sb('preparing', 'Accept ✅', 'green') + sb('cancelled', 'Reject', 'ghost red'); }
+    if (o.status === 'preparing') actions = sb('ready', 'Tayyar hai 🍽️', 'green');
+  }
+  const c = o.customer || {}, ph = String(c.phone || '').replace(/\D/g, '');
+  const cust = isAdmin
+    ? '<div class="cust"><b>' + esc(c.name) + '</b> · <a href="tel:' + esc(ph) + '">📞 ' + esc(ph) + '</a> · <a href="https://wa.me/91' + esc(ph) + '" target="_blank" rel="noopener">WhatsApp</a><div>' + esc(c.addr) + (c.land ? ' (Landmark: ' + esc(c.land) + ')' : '') + '</div>' + (o.note ? '<div class="small">📝 ' + esc(o.note) + '</div>' : '') + '</div>'
+    : '<div class="cust"><b>' + esc(c.name) + '</b>' + (o.note ? '<div class="small">📝 ' + esc(o.note) + '</div>' : '') + '</div>';
+  return '<div class="card"><div class="row"><b class="grow">#' + esc(o.id.slice(-4).toUpperCase()) + ' · ' + esc(o.stallName) + '</b><span class="pill ' + (st.cls || '') + '">' + esc(label) + '</span></div><div class="muted small">' + timeStr(o) + '</div>' + cust +
+    (o.items || []).map(i => '<div class="row small line"><span class="grow">' + i.qty + ' × ' + esc(i.name) + '</span><span>' + rupee(i.qty * i.price) + '</span></div>').join('') +
+    (isAdmin
+      ? '<div class="row small line"><span class="grow">Khana ' + rupee(o.subtotal) + ' + Delivery</span><span>' + (o.deliveryCharge != null ? rupee(o.deliveryCharge) : '—') + '</span></div><div class="row"><b class="grow">Customer se lena</b><b>' + (total != null ? rupee(total) : '—') + '</b></div>'
+      : '<div class="row"><b class="grow">Aapko milega</b><b>' + rupee(o.subtotal) + '</b></div>') +
+    '<div class="row gap">' + actions + '</div></div>';
+}
+
+function adminStalls() {
+  return '<button class="btn" data-act="addStall">+ Naya stall jodo</button>' +
+    (S.stalls.map(s => '<div class="card"><div class="row"><div class="emoji">' + esc(s.emoji || '🍽️') + '</div><div class="grow"><b>' + esc(s.name) + '</b><div class="muted small">' + (s.menu || []).length + ' items' + (s.hasOwner ? ' · owner login hai' : '') + (s.hidden ? ' · chhupa hua' : '') + '</div></div><span class="badge ' + (s.open !== false ? 'on' : 'off') + '">' + (s.open !== false ? 'Khula' : 'Band') + '</span></div>' +
+      '<div class="row gap"><button class="btn sm" data-act="editMenu" data-id="' + esc(s.id) + '">📋 Menu</button><button class="btn sm ghost" data-act="toggleOpen" data-id="' + esc(s.id) + '">' + (s.open !== false ? 'Band karo' : 'Khola karo') + '</button><button class="btn sm ghost" data-act="toggleHide" data-id="' + esc(s.id) + '">' + (s.hidden ? 'Dikhao' : 'Chhupao') + '</button><button class="btn sm ghost red" data-act="delStall" data-id="' + esc(s.id) + '">🗑</button></div></div>').join('') || '<div class="card center muted">Abhi koi stall nahi. Upar se jodo.</div>');
+}
+
+function menuEditor(sid) {
+  const s = stallById(sid); if (!s) return '<p class="muted">Stall nahi mila.</p>';
+  const menu = s.menu || [], a = 'data-sid="' + esc(sid) + '"';
+  return '<div class="card"><div class="row"><b class="grow">' + esc(s.name) + '</b><button class="btn sm ' + (s.open !== false ? 'green' : 'ghost') + '" data-act="toggleOpen" data-id="' + esc(sid) + '">' + (s.open !== false ? '🟢 Khula' : '🔴 Band') + '</button></div></div>' +
+    '<button class="btn" data-act="addItem" ' + a + '>+ Naya item jodo</button>' +
+    (menu.map(it => {
+      const b = a + ' data-iid="' + esc(it.id) + '"';
+      return '<div class="card item"><div class="row"><div class="grow"><b>' + esc(it.name) + '</b><div class="muted">' + rupee(it.price) + '</div></div></div><div class="row gap"><button class="btn sm ' + (it.available !== false ? 'green' : 'ghost') + '" data-act="toggleItem" ' + b + '>' + (it.available !== false ? 'Hai ✅' : 'Khatam') + '</button><button class="btn sm ghost" data-act="editItem" ' + b + '>✏️ Badlo</button><button class="btn sm ghost red" data-act="delItem" ' + b + '>🗑</button></div></div>';
+    }).join('') || '<div class="card center muted">Menu khali hai.</div>');
+}
+
+function body() {
+  let h = S.err ? '<div class="err">' + esc(S.err) + '</div>' : '';
+  switch (S.view) {
+    case 'stall': return h + stallView();
+    case 'cart': return h + cartView();
+    case 'orders': return h + ordersView();
+    case 'login': return h + loginView();
+    case 'panel': return h + panelView();
+    case 'menu': return h + menuEditor(S.menuStallId);
+    default: return h + homeView();
+  }
+}
+
+function cartBar() {
+  if (!['home', 'stall'].includes(S.view) || !cartCount()) return '';
+  return '<div class="cartbar" data-act="openCart"><span>' + cartCount() + ' item · ' + rupee(cartTotal()) + '</span><b>Cart dekho →</b></div>';
+}
+
+function nav() {
+  const items = [['home', '🏠', 'Home'], ['orders', '🧾', 'Meri Orders'], S.user ? ['panel', '🛠', 'Panel'] : ['login', '👤', 'Login']];
+  const cur = (S.view === 'stall' || S.view === 'cart') ? 'home' : S.view === 'menu' ? 'panel' : S.view;
+  let attn = 0;
+  if (S.role === 'admin') attn = S.panelOrders.filter(o => o.status === 'placed' || o.status === 'ready').length;
+  else if (S.role === 'owner') attn = S.panelOrders.filter(o => o.status === 'confirmed').length;
+  const custAttn = S.myOrders.filter(id => S.orderDocs[id] && S.orderDocs[id].status === 'priced').length;
+  return '<nav>' + items.map(([v, i, l]) => {
+    const n = v === 'panel' ? attn : v === 'orders' ? custAttn : 0;
+    return '<button class="' + (cur === v ? 'on' : '') + '" data-act="go" data-v="' + v + '"><span>' + i + '</span>' + l + (n ? '<i class="dot">' + n + '</i>' : '') + '</button>';
+  }).join('') + '</nav>';
+}
+
+function render() {
+  const a = document.activeElement;
+  if (a && a.matches && a.matches('#app input, #app textarea, #app select')) { S.pending = true; return; }
+  S.pending = false;
+  const y = window.scrollY;
+  $('#app').innerHTML = header() + '<div class="wrap">' + body() + '</div>' + cartBar() + nav();
+  window.scrollTo(0, y);
+}
+document.addEventListener('focusout', () => { if (S.pending) setTimeout(() => { if (S.pending) render(); }, 80); });
+document.addEventListener('input', e => { const k = e.target && e.target.dataset && e.target.dataset.draft; if (k) S.draft[k] = e.target.value; });
+
+/* ---------- actions ---------- */
+async function saveMenu(sid, menu) { try { await updateDoc(doc(db, 'stalls', sid), {menu}); } catch (e) { toast('Save nahi hua: ' + e.message); } }
+async function updOrder(id, data) { try { await updateDoc(doc(db, 'orders', id), data); } catch (e) { toast('Update nahi hua: ' + e.message); } }
+
+const ACT = {
+  openStall: ({id}) => { S.stallId = id; S.view = 'stall'; top(); render(); },
+  back: () => { S.view = S.view === 'menu' ? 'panel' : (S.view === 'cart' && S.stallId ? 'stall' : 'home'); top(); render(); },
+  go: ({v}) => { S.view = (v === 'login' && S.user) ? 'panel' : v; top(); render(); },
+  openCart: () => { S.view = 'cart'; top(); render(); },
+  closeSheet: () => closeSheet(),
+  inc: ({sid, iid}) => {
+    const s = stallById(sid), it = s && (s.menu || []).find(m => m.id === iid); if (!it) return;
+    if (s.open === false) return toast('Stall abhi band hai');
+    if (S.cart.stallId && S.cart.stallId !== sid && cartCount() > 0) {
+      if (!confirm('Cart mein dusre stall ka saaman hai. Cart khali karke is stall se order karein?')) return;
+      S.cart = {stallId: null, items: {}};
+    }
+    S.cart.stallId = sid;
+    const c = S.cart.items[iid];
+    S.cart.items[iid] = {name: it.name, price: Number(it.price), qty: (c ? c.qty : 0) + 1};
+    persistCart(); render();
+  },
+  dec: ({iid}) => {
+    const c = S.cart.items[iid]; if (!c) return;
+    c.qty--; if (c.qty <= 0) delete S.cart.items[iid];
+    if (!Object.keys(S.cart.items).length) S.cart.stallId = null;
+    persistCart(); render();
+  },
+  checkout: () => {
+    const p = S.profile;
+    openSheet('<h3>Delivery ki jaankari</h3>' +
+      '<label>Aapka naam<input id="f_name" value="' + esc(p.name || '') + '" autocomplete="name"></label>' +
+      '<label>Mobile number<input id="f_phone" type="tel" inputmode="numeric" maxlength="10" value="' + esc(p.phone || '') + '"></label>' +
+      '<label>Gaon / poora address<textarea id="f_addr" rows="2">' + esc(p.addr || '') + '</textarea></label>' +
+      '<label>Landmark (pehchan)<input id="f_land" value="' + esc(p.land || '') + '"></label>' +
+      '<label>Koi note (optional)<input id="f_note" placeholder="jaise: kam teekha"></label>' +
+      '<button class="btn" data-act="placeOrder">Order bhejo</button><button class="btn ghost" data-act="closeSheet">Wapas</button>');
+  },
+  placeOrder: async () => {
+    if (S.placing) return;
+    const name = $('#f_name').value.trim(), phone = $('#f_phone').value.trim(), addr = $('#f_addr').value.trim(), land = $('#f_land').value.trim(), note = $('#f_note').value.trim();
+    if (name.length < 2) return toast('Naam likho');
+    if (!/^[6-9]\d{9}$/.test(phone)) return toast('10 digit ka sahi mobile number likho');
+    if (addr.length < 4) return toast('Address likho');
+    const s = stallById(S.cart.stallId); if (!s) return toast('Stall nahi mila');
+    if (s.open === false) return toast('Stall abhi band hai');
+    const items = [];
+    for (const i of cartItems()) {
+      const m = (s.menu || []).find(x => x.id === i.id);
+      if (!m || m.available === false) { toast(i.name + ' ab available nahi hai'); delete S.cart.items[i.id]; persistCart(); closeSheet(); render(); return; }
+      items.push({id: i.id, name: m.name, price: Number(m.price), qty: i.qty});
+    }
+    if (!items.length) return;
+    S.profile = {name, phone, addr, land}; save('profile', S.profile);
+    const subtotal = items.reduce((a, i) => a + i.price * i.qty, 0);
+    S.placing = true;
+    try {
+      const ref = await addDoc(collection(db, 'orders'), {stallId: s.id, stallName: s.name, ownerUid: s.ownerUid || '', items, subtotal, deliveryCharge: null, status: 'placed', customer: {name, phone, addr, land}, note, createdAt: serverTimestamp()});
+      S.myOrders = [ref.id, ...S.myOrders].slice(0, 15); save('myOrders', S.myOrders);
+      S.cart = {stallId: null, items: {}}; persistCart();
+      subscribeMyOrders(); closeSheet(); S.view = 'orders'; top();
+      toast('Order bhej diya ✅ Delivery charge ka wait karo'); render();
+    } catch (e) { toast('Order nahi gaya: ' + e.message); }
+    S.placing = false;
+  },
+  custConfirm: ({id}) => updOrder(id, {status: 'confirmed'}),
+  custCancel: ({id}) => { if (confirm('Order cancel karna hai?')) updOrder(id, {status: 'cancelled'}); },
+
+  login: async () => {
+    const e = $('#l_email').value.trim(), p = $('#l_pass').value;
+    if (!e || !p) return toast('Email aur password likho');
+    try { await signInWithEmailAndPassword(auth, e, p); toast('Login ho gaya ✅'); } catch (err) { toast(niceAuthErr(err)); }
+  },
+  adminSignup: async () => {
+    const e = $('#l_email').value.trim().toLowerCase(), p = $('#l_pass').value;
+    if (e !== ADMIN_EMAIL.toLowerCase()) return toast('Sirf admin email se account ban sakta hai');
+    if (p.length < 6) return toast('Password kam se kam 6 akshar ka rakho');
+    try { await createUserWithEmailAndPassword(auth, e, p); toast('Admin account ban gaya ✅'); } catch (err) { toast(niceAuthErr(err)); }
+  },
+  logout: async () => { await signOut(auth); S.view = 'home'; render(); },
+  tab: ({k}) => { S.tab = k; render(); },
+
+  setCharge: ({id}) => {
+    const inp = document.querySelector('[data-draft="chg_' + id + '"]');
+    const v = Math.round(Number(inp ? inp.value : MIN_CHARGE));
+    if (!(v >= MIN_CHARGE)) return toast('Minimum ₹' + MIN_CHARGE + ' charge hai');
+    delete S.draft['chg_' + id];
+    updOrder(id, {deliveryCharge: v, status: 'priced'});
+  },
+  setStatus: ({id, to}) => {
+    if (to === 'cancelled' && !confirm('Order cancel karna hai?')) return;
+    updOrder(id, {status: to});
+  },
+
+  addStall: () => openSheet('<h3>Naya stall</h3>' +
+    '<label>Stall ka naam<input id="s_name"></label><label>Icon emoji (optional)<input id="s_emoji" placeholder="🍔"></label>' +
+    '<label>Timing (optional)<input id="s_time" placeholder="5 baje se 10 baje"></label>' +
+    '<p class="muted small">Agar stall malik khud app chalayega toh uska email/password daalo. Warna khali chhod do, menu aap sambhaloge.</p>' +
+    '<label>Owner ka email (optional)<input id="s_email" type="email"></label><label>Owner ka password (optional)<input id="s_pass" type="text" placeholder="kam se kam 6 akshar"></label>' +
+    '<button class="btn" data-act="saveStall">Stall jodo</button><button class="btn ghost" data-act="closeSheet">Wapas</button>'),
+  saveStall: async () => {
+    const name = $('#s_name').value.trim(), emoji = $('#s_emoji').value.trim(), timing = $('#s_time').value.trim(), email = $('#s_email').value.trim().toLowerCase(), pass = $('#s_pass').value;
+    if (name.length < 2) return toast('Stall ka naam likho');
+    let ownerUid = '';
+    try {
+      if (email) {
+        if (pass.length < 6) return toast('Password kam se kam 6 akshar ka rakho');
+        const sec = getApps().find(a => a.name === 'sec') || initializeApp(CONFIG, 'sec');
+        const sa = getAuth(sec);
+        const cred = await createUserWithEmailAndPassword(sa, email, pass);
+        ownerUid = cred.user.uid; await signOut(sa);
+      }
+      await addDoc(collection(db, 'stalls'), {name, emoji, timing, open: true, hidden: false, menu: [], ownerUid, hasOwner: !!email, createdAt: serverTimestamp()});
+      closeSheet(); toast('Stall jud gaya ✅' + (email ? ' Owner ko email/password de do' : ''));
+    } catch (e) { toast(niceAuthErr(e)); }
+  },
+  editMenu: ({id}) => { S.menuStallId = id; S.view = 'menu'; top(); render(); },
+  toggleOpen: ({id}) => { const s = stallById(id); if (s) updateDoc(doc(db, 'stalls', id), {open: s.open === false}).catch(e => toast(e.message)); },
+  toggleHide: ({id}) => { const s = stallById(id); if (s) updateDoc(doc(db, 'stalls', id), {hidden: !s.hidden}).catch(e => toast(e.message)); },
+  delStall: ({id}) => { if (confirm('Ye stall hamesha ke liye hata dein?')) deleteDoc(doc(db, 'stalls', id)).catch(e => toast(e.message)); },
+
+  addItem: ({sid}) => openSheet('<h3>Naya item</h3><label>Item ka naam<input id="i_name" placeholder="jaise: Samosa"></label><label>Rate (₹)<input id="i_price" type="number" inputmode="numeric"></label>' +
+    '<button class="btn" data-act="saveItem" data-sid="' + esc(sid) + '" data-next="1">Save + agla item</button><button class="btn ghost" data-act="saveItem" data-sid="' + esc(sid) + '">Save karke band karo</button>'),
+  editItem: ({sid, iid}) => {
+    const s = stallById(sid), it = s && (s.menu || []).find(m => m.id === iid); if (!it) return;
+    openSheet('<h3>Item badlo</h3><label>Item ka naam<input id="i_name" value="' + esc(it.name) + '"></label><label>Rate (₹)<input id="i_price" type="number" inputmode="numeric" value="' + esc(it.price) + '"></label>' +
+      '<button class="btn" data-act="saveItem" data-sid="' + esc(sid) + '" data-iid="' + esc(iid) + '">Save</button><button class="btn ghost" data-act="closeSheet">Wapas</button>');
+  },
+  saveItem: ({sid, iid, next}) => {
+    const name = $('#i_name').value.trim(), price = Math.round(Number($('#i_price').value));
+    if (!name) return toast('Item ka naam likho');
+    if (!(price > 0)) return toast('Sahi rate likho');
+    const s = stallById(sid); if (!s) return;
+    let menu = [...(s.menu || [])];
+    if (iid) menu = menu.map(m => m.id === iid ? {...m, name, price} : m);
+    else menu.push({id: uid8(), name, price, available: true});
+    saveMenu(sid, menu);
+    if (next) { ACT.addItem({sid}); toast('Jud gaya ✅ Agla item likho'); } else closeSheet();
+  },
+  toggleItem: ({sid, iid}) => { const s = stallById(sid); if (s) saveMenu(sid, (s.menu || []).map(m => m.id === iid ? {...m, available: m.available === false} : m)); },
+  delItem: ({sid, iid}) => { const s = stallById(sid); if (s && confirm('Ye item hata dein?')) saveMenu(sid, (s.menu || []).filter(m => m.id !== iid)); }
+};
+
+document.addEventListener('click', e => {
+  const el = e.target.closest('[data-act]'); if (!el) return;
+  const fn = ACT[el.dataset.act]; if (!fn) return;
+  e.preventDefault(); fn(el.dataset, el);
+});
+
+subscribeMyOrders();
+render();
+</script>
+</body>
+</html>
